@@ -13,6 +13,16 @@ if (fs.existsSync(sharedEnvPath)) {
   });
 }
 
+// Load app-specific env (DATABASE_URL, DB_SCHEMA, etc.)
+const appEnvPath = path.join(__dirname, '.env.app');
+if (fs.existsSync(appEnvPath)) {
+  const lines = fs.readFileSync(appEnvPath, 'utf8').split('\n');
+  lines.forEach(line => {
+    const [key, ...vals] = line.split('=');
+    if (key && vals.length) process.env[key.trim()] = vals.join('=').trim();
+  });
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
