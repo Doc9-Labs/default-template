@@ -32,13 +32,15 @@ O design system completo está documentado na pasta `.claude/`. **Sempre siga es
 ## Estrutura de Arquivos
 ```
 ├── server.js          # Express server (porta via env PORT)
+├── db.js              # Helper PostgreSQL (pool com schema isolado)
 ├── src/
 │   ├── main.jsx       # Entry point React
 │   └── style.css      # Design system CSS
 ├── index.html         # HTML base (Vite)
 ├── vite.config.js     # Config Vite
-├── .env               # Variáveis locais (PORT, APP_SUBDOMAIN)
+├── .env               # Variáveis locais (PORT, APP_SUBDOMAIN, DATABASE_URL, DB_SCHEMA)
 ├── .env.shared        # Variáveis compartilhadas do hub (auto-sincronizadas)
+├── .env.app           # Variáveis específicas do app (gerenciadas pelo Hub)
 ├── .claude/           # Referência do design system (não editar)
 └── .github/workflows/deploy.yml  # CI/CD automático
 ```
@@ -46,6 +48,132 @@ O design system completo está documentado na pasta `.claude/`. **Sempre siga es
 ## Deploy
 - O deploy é automático: faça push para `main` e a GitHub Action conecta via SSH no servidor, puxa as mudanças, instala dependências e reinicia via PM2.
 - Variáveis de ambiente compartilhadas entre apps são gerenciadas pelo Hub.
+
+## Banco de Dados (PostgreSQL)
+
+Cada app possui acesso a um banco PostgreSQL compartilhado, com **schema isolado** para seus dados. As variáveis são configuradas automaticamente pelo Hub.
+
+### Variáveis de ambiente disponíveis
+| Variável | Descrição | Exemplo |
+|----------|-----------|---------|
+| `DATABASE_URL` | String de conexão PostgreSQL | `postgresql://doc9_app:senha@localhost:5432/doc9_hub_db` |
+| `DB_SCHEMA` | Schema isolado do app | `app_suporte` |
+
+> Essas variáveis estão no `.env` do app e são carregadas automaticamente pelo `server.js`.
+
+### Helper `db.js`
+
+O arquivo `db.js` na raiz do projeto fornece um pool de conexão pré-configurado que **já aponta para o schema do app automaticamente**. Basta importar e usar:
+
+```js
+const db = require('./db');
+```
+
+### Criação de tabelas
+
+As tabelas são criadas dentro do schema do app. Não é necessário especificar o schema — o `search_path` é configurado automaticamente.
+
+```js
+await db.query(`
+  CREATE TABLE IF NOT EXISTS clientes (
+    id SERIAL PRIMARY KEY,
+    nome TEXT NOT NULL,
+    email TEXT UNIQUE,
+    telefone TEXT,
+    criado_em TIMESTAMP DEFAULT NOW()
+  )
+`);
+```
+
+### CRUD — Exemplos completos
+
+**Inserir:**
+```js
+const { rows } = await db.query(
+  'INSERT INTO clientes (nome, email) VALUES ($1, $2) RETURNING *',
+  ['João Silva', 'joao@email.com']
+);
+const novoCliente = rows[0];
+```
+
+**Buscar:**
+```js
+// Todos
+const { rows: todos } = await db.query('SELECT * FROM clientes ORDER BY criado_em DESC');
+
+// Com filtro
+const { rows } = await db.query('SELECT * FROM clientes WHERE email = $1', ['joao@email.com']);
+
+// Com paginação
+const { rows } = await db.query('SELECT * FROM clientes ORDER BY id LIMIT $1 OFFSET $2', [10, 0]);
+```
+
+**Atualizar:**
+```js
+await db.query(
+  'UPDATE clientes SET nome = $1, telefone = $2 WHERE id = $3',
+  ['João S.', '11999999999', 1]
+);
+```
+
+**Deletar:**
+```js
+await db.query('DELETE FROM clientes WHERE id = $1', [1]);
+```
+
+### Transações
+
+Para operações que precisam ser atômicas, use `getClient()`:
+
+```js
+const client = await db.getClient();
+try {
+  await client.query('BEGIN');
+  await client.query('INSERT INTO pedidos (cliente_id, total) VALUES ($1, $2)', [1, 150.00]);
+  await client.query('UPDATE clientes SET ultimo_pedido = NOW() WHERE id = $1', [1]);
+  await client.query('COMMIT');
+} catch (e) {
+  await client.query('ROLLBACK');
+  throw e;
+} finally {
+  client.release();
+}
+```
+
+### Uso em rotas Express
+
+```js
+const db = require('./db');
+
+app.get('/api/clientes', async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM clientes ORDER BY nome');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/clientes', async (req, res) => {
+  const { nome, email } = req.body;
+  try {
+    const { rows } = await db.query(
+      'INSERT INTO clientes (nome, email) VALUES ($1, $2) RETURNING *',
+      [nome, email]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+```
+
+### Regras importantes
+1. **Sempre use `$1, $2, ...`** para parâmetros — nunca concatene strings SQL (evita SQL injection)
+2. **Não edite o `search_path` manualmente** — o `db.js` já configura para o schema do app
+3. **Cada app tem seu schema isolado** — tabelas de um app não interferem em outro
+4. **Não é necessário instalar `pg`** — já está nas dependências do projeto
+5. **O banco é compartilhado** — use apenas para dados do seu app, não tente acessar schemas de outros apps
 
 ## Comandos
 ```bash
