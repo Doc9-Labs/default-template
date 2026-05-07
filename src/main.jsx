@@ -6,101 +6,93 @@ const STEPS = [
   {
     num: 1,
     icon: '🔗',
-    title: 'Conectar ao Claude Code',
-    desc: 'Abra o terminal e conecte o repositório ao Claude Code para começar a desenvolver.',
-    code: `# Clone o repositório (o link está no Hub)
-git clone https://github.com/Doc9-Labs/hub-SEU-APP.git
-cd hub-SEU-APP
-
-# Abra no Claude Code
-claude`,
-    tip: 'O arquivo CLAUDE.md na raiz do projeto contém todas as instruções e referências do design system para o Claude.',
+    title: 'Abrir o Projeto no Claude Code',
+    desc: 'Acesse o Claude Code pela interface web e conecte o repositório do seu app.',
+    instructions: [
+      'Acesse o Claude Code e faça login com sua conta',
+      'Clique em "New Project" ou "Open Project"',
+      'Cole a URL do repositório GitHub do seu app (disponível no Hub)',
+      'O Claude vai clonar e carregar o projeto automaticamente',
+    ],
+    screenshot: 'claude_open_project',
+    tip: 'O arquivo CLAUDE.md na raiz do projeto contém todas as instruções do design system Doc9. O Claude usa como referência automaticamente.',
   },
   {
     num: 2,
     icon: '💬',
-    title: 'Descrever o que você quer',
-    desc: 'Converse com o Claude Code e descreva o app que deseja criar. Ele já conhece o design system Doc9.',
-    code: `# Exemplo de prompt no Claude Code:
-
-> Crie uma página de dashboard com um gráfico de barras
-  mostrando vendas mensais e uma tabela de clientes
-  recentes. Use o design system Doc9 (Poppins, roxo
-  #3C21F7, cards com box shadow).`,
-    tip: 'A pasta .claude/ contém specs de componentes, tokens, layout e páginas — o Claude usa como referência automaticamente.',
+    title: 'Descrever o que deseja construir',
+    desc: 'Use a interface de chat do Claude Code para descrever o app que deseja criar.',
+    instructions: [
+      'No campo de mensagem, descreva o que quer criar',
+      'Seja específico: mencione componentes, dados, comportamento',
+      'O Claude conhece o design system Doc9 e vai aplicar automaticamente',
+      'Revise o código gerado antes de aceitar as mudanças',
+    ],
+    screenshot: 'claude_chat',
+    example: 'Crie uma página de dashboard com um gráfico de barras mostrando vendas mensais e uma tabela de clientes recentes. Use o design system Doc9.',
+    tip: 'A pasta .claude/ contém specs de componentes, tokens de cores e layout — o Claude usa tudo como referência.',
   },
   {
     num: 3,
-    icon: '🌿',
-    title: 'Criar uma Branch',
-    desc: 'Sempre trabalhe em uma branch separada para manter o main estável.',
-    code: `# Crie uma branch para sua feature
-git checkout -b feature/minha-feature
-
-# O Claude Code já pode criar a branch por você:
-> Crie uma branch chamada feature/dashboard
-  e implemente o dashboard`,
-    tip: 'Branches protegem o código em produção. Nunca commite diretamente na main.',
+    icon: '✅',
+    title: 'Revisar e Aceitar as Mudanças',
+    desc: 'O Claude mostra um diff das alterações. Revise e aceite ou peça ajustes.',
+    instructions: [
+      'Verifique o diff de cada arquivo alterado',
+      'Clique em "Accept" para aceitar ou "Reject" para recusar',
+      'Se algo não ficou como esperado, peça ao Claude para ajustar',
+      'Quando satisfeito, confirme todas as mudanças',
+    ],
+    screenshot: 'claude_review',
+    tip: 'Você pode iterar quantas vezes quiser. Peça ajustes específicos como "mude a cor do botão" ou "adicione um filtro na tabela".',
   },
   {
     num: 4,
     icon: '📤',
-    title: 'Fazer o Push e abrir um PR',
-    desc: 'Envie suas alterações para o GitHub e abra um Pull Request para revisão.',
-    code: `# Adicione e commite suas alterações
-git add .
-git commit -m "feat: adiciona dashboard de vendas"
-
-# Envie para o GitHub
-git push origin feature/minha-feature
-
-# Abra o Pull Request no GitHub:
-# → github.com/Doc9-Labs/hub-SEU-APP/pulls
-# → "New Pull Request"
-# → base: main ← compare: feature/minha-feature`,
-    tip: 'O PR permite revisar as mudanças antes de ir para produção. Você pode pedir para o Claude Code fazer isso por você.',
+    title: 'Criar um Pull Request',
+    desc: 'O Claude pode criar o PR automaticamente ou você pode fazer manualmente pelo GitHub.',
+    instructions: [
+      'No Claude Code, clique em "Create Pull Request"',
+      'Adicione um título descritivo (ex: "Adiciona dashboard de vendas")',
+      'Descreva as mudanças no corpo do PR',
+      'O PR aparecerá no repositório GitHub do seu app',
+    ],
+    screenshot: 'claude_pr',
+    tip: 'Pull Requests permitem revisão antes de ir para produção. Outros membros do time podem comentar e aprovar.',
   },
   {
     num: 5,
-    icon: '✅',
-    title: 'Revisar e Fazer o Merge',
-    desc: 'Revise o código no PR, aprove e faça o merge para a branch main.',
-    code: `# No GitHub, na página do PR:
-# 1. Revise os arquivos alterados (aba "Files changed")
-# 2. Clique em "Merge pull request"
-# 3. Confirme com "Confirm merge"
-
-# Ou via terminal:
-git checkout main
-git merge feature/minha-feature
-git push origin main`,
+    icon: '🔀',
+    title: 'Fazer o Merge',
+    desc: 'Após revisar o PR no GitHub, faça o merge para enviar as mudanças para produção.',
+    instructions: [
+      'Abra o PR no GitHub (link disponível no Claude Code)',
+      'Revise os arquivos alterados na aba "Files changed"',
+      'Clique em "Merge pull request"',
+      'Confirme com "Confirm merge"',
+    ],
+    screenshot: 'github_merge',
     tip: 'Após o merge, a branch pode ser deletada. O GitHub oferece essa opção automaticamente.',
   },
   {
     num: 6,
     icon: '🚀',
     title: 'Deploy Automático',
-    desc: 'O push para main dispara o GitHub Actions que faz o deploy automaticamente no servidor.',
-    code: `# O deploy é automático! Após o merge:
-# 1. GitHub Actions detecta o push na main
-# 2. Conecta via SSH no servidor
-# 3. Puxa as mudanças (git pull)
-# 4. Instala dependências (npm install)
-# 5. Faz o build (npm run build)
-# 6. Reinicia o app (pm2 restart)
-
-# Acompanhe em:
-# → github.com/Doc9-Labs/hub-SEU-APP/actions`,
-    tip: 'O deploy leva ~30 segundos. Se algo der errado, o GitHub Actions mostra os logs de erro.',
+    desc: 'O push para main dispara o GitHub Actions que faz o deploy automaticamente.',
+    instructions: [
+      'O deploy é automático após o merge!',
+      'GitHub Actions detecta o push na main',
+      'Conecta via SSH, puxa mudanças, instala dependências e faz build',
+      'O app é reiniciado com as novas alterações (~30s)',
+    ],
+    screenshot: 'github_actions',
+    tip: 'Acompanhe o progresso em: GitHub → Repositório → Aba "Actions". Se algo der errado, os logs de erro aparecem lá.',
   },
 ];
 
 function StepCard({ step, isActive, onClick }) {
   return (
-    <div
-      className={`step-card ${isActive ? 'step-active' : ''}`}
-      onClick={onClick}
-    >
+    <div className={`step-card ${isActive ? 'step-active' : ''}`} onClick={onClick}>
       <div className="step-num">{step.num}</div>
       <div className="step-icon">{step.icon}</div>
       <h3>{step.title}</h3>
@@ -110,13 +102,6 @@ function StepCard({ step, isActive, onClick }) {
 }
 
 function StepDetail({ step }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(step.code.replace(/^# .*$/gm, '').replace(/^> /gm, '').trim());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <div className="step-detail" key={step.num}>
       <div className="step-detail-header">
@@ -127,15 +112,32 @@ function StepDetail({ step }) {
         </div>
       </div>
       <p className="step-detail-desc">{step.desc}</p>
-      <div className="code-block">
-        <div className="code-header">
-          <span>Terminal</span>
-          <button className="copy-btn" onClick={handleCopy}>
-            {copied ? '✅ Copiado!' : '📋 Copiar'}
-          </button>
-        </div>
-        <pre><code>{step.code}</code></pre>
+
+      <div className="instructions-list">
+        {step.instructions.map((instr, i) => (
+          <div key={i} className="instruction-item">
+            <span className="instruction-num">{i + 1}</span>
+            <span>{instr}</span>
+          </div>
+        ))}
       </div>
+
+      {step.example && (
+        <div className="example-box">
+          <div className="example-label">💬 Exemplo de prompt:</div>
+          <p>{step.example}</p>
+        </div>
+      )}
+
+      {/* Placeholder para screenshot — substitua o src pela imagem real */}
+      <div className="screenshot-placeholder" data-name={step.screenshot}>
+        <div className="screenshot-inner">
+          <span className="screenshot-icon">🖼️</span>
+          <span className="screenshot-text">Screenshot: {step.screenshot}.png</span>
+          <span className="screenshot-hint">Adicione a imagem em /src/assets/{step.screenshot}.png</span>
+        </div>
+      </div>
+
       {step.tip && (
         <div className="tip-box">
           <span className="tip-icon">💡</span>
@@ -164,39 +166,22 @@ function App() {
 
       <div className="steps-nav">
         {STEPS.map((step, i) => (
-          <StepCard
-            key={step.num}
-            step={step}
-            isActive={i === activeStep}
-            onClick={() => setActiveStep(i)}
-          />
+          <StepCard key={step.num} step={step} isActive={i === activeStep} onClick={() => setActiveStep(i)} />
         ))}
       </div>
 
       <StepDetail step={STEPS[activeStep]} />
 
       <div className="step-navigation">
-        <button
-          className="btn btn-secondary"
-          disabled={activeStep === 0}
-          onClick={() => setActiveStep(p => p - 1)}
-        >
+        <button className="btn btn-secondary" disabled={activeStep === 0} onClick={() => setActiveStep(p => p - 1)}>
           ← Anterior
         </button>
         <div className="step-dots">
           {STEPS.map((_, i) => (
-            <span
-              key={i}
-              className={`dot ${i === activeStep ? 'dot-active' : ''}`}
-              onClick={() => setActiveStep(i)}
-            />
+            <span key={i} className={`dot ${i === activeStep ? 'dot-active' : ''}`} onClick={() => setActiveStep(i)} />
           ))}
         </div>
-        <button
-          className="btn btn-primary"
-          disabled={activeStep === STEPS.length - 1}
-          onClick={() => setActiveStep(p => p + 1)}
-        >
+        <button className="btn btn-primary" disabled={activeStep === STEPS.length - 1} onClick={() => setActiveStep(p => p + 1)}>
           Próximo →
         </button>
       </div>
@@ -205,7 +190,7 @@ function App() {
         <div className="footer-links">
           <span>📚 Referências:</span>
           <a href="https://docs.github.com/en/pull-requests" target="_blank" rel="noopener noreferrer">GitHub PRs</a>
-          <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener noreferrer">Claude Code Docs</a>
+          <a href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener noreferrer">Claude Code</a>
           <a href="https://hub.doc9lawtech.com.br" target="_blank" rel="noopener noreferrer">Doc9 Hub</a>
         </div>
       </footer>

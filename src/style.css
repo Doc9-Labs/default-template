@@ -190,49 +190,84 @@ body {
 .step-detail h2 { font-size: 20px; font-weight: 700; }
 .step-detail-desc { font-size: 15px; color: var(--text-second-color); line-height: 1.6; margin-bottom: 20px; }
 
-/* ===== Code Block ===== */
-.code-block {
+/* ===== Instructions List ===== */
+.instructions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--body-bg);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.instruction-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--gradient-brand);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ===== Example Box ===== */
+.example-box {
+  padding: 16px 20px;
   background: #1a1a2e;
   border-radius: 10px;
-  overflow: hidden;
   margin-bottom: 16px;
 }
 
-.code-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: rgba(255,255,255,0.05);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.code-header span { font-size: 12px; color: #888; font-weight: 500; }
-
-.copy-btn {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #ccc;
-  padding: 4px 12px;
-  border-radius: 6px;
+.example-label {
   font-size: 12px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all var(--transition);
-}
-.copy-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
-
-.code-block pre {
-  padding: 16px 20px;
-  overflow-x: auto;
+  color: #888;
+  font-weight: 600;
+  margin-bottom: 8px;
 }
 
-.code-block code {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-  font-size: 13px;
-  line-height: 1.7;
+.example-box p {
+  font-size: 14px;
   color: #e0e0ff;
-  white-space: pre;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* ===== Screenshot Placeholder ===== */
+.screenshot-placeholder {
+  margin-bottom: 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px dashed var(--border-color);
+  background: var(--body-bg);
+}
+
+.screenshot-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+  gap: 8px;
+}
+
+.screenshot-icon { font-size: 32px; opacity: 0.4; }
+.screenshot-text { font-size: 14px; font-weight: 600; color: var(--text-second-color); }
+.screenshot-hint { font-size: 11px; color: var(--text-second-color); opacity: 0.6; }
+
+/* When a real image is added via <img> inside the placeholder */
+.screenshot-placeholder img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* ===== Tip Box ===== */
