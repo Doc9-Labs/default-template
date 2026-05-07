@@ -32,7 +32,8 @@ jobs:
             APP_DIR="/home/ubuntu/apps/${{ secrets.APP_SUBDOMAIN }}"
             cd "$APP_DIR"
             git pull origin main
-            npm install --production
-            npm run build 2>/dev/null || true
+            npm install
+            npm run build
+            npm prune --production
             cp /home/ubuntu/doc9-hub/shared/.env.shared .env.shared 2>/dev/null || true
             pm2 restart ${{ secrets.APP_SUBDOMAIN }} || pm2 start server.js --name "${{ secrets.APP_SUBDOMAIN }}"
