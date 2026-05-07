@@ -33,6 +33,7 @@ O design system completo está documentado na pasta `.claude/`. **Sempre siga es
 ```
 ├── server.js          # Express server (porta via env PORT)
 ├── db.js              # Helper PostgreSQL (pool com schema isolado)
+├── claude.js          # Helper Claude AI (client Anthropic pré-configurado)
 ├── src/
 │   ├── main.jsx       # Entry point React
 │   └── style.css      # Design system CSS
@@ -174,6 +175,90 @@ app.post('/api/clientes', async (req, res) => {
 3. **Cada app tem seu schema isolado** — tabelas de um app não interferem em outro
 4. **Não é necessário instalar `pg`** — já está nas dependências do projeto
 5. **O banco é compartilhado** — use apenas para dados do seu app, não tente acessar schemas de outros apps
+
+## Claude AI (Anthropic)
+
+Cada app pode usar a **Claude API** diretamente. O Hub gerencia o workspace e a API key é configurada via variável de ambiente.
+
+### Variável de ambiente
+| Variável | Descrição |
+|----------|-----------|
+| `ANTHROPIC_API_KEY` | API key da Anthropic associada ao workspace do app |
+
+> A key é configurada pelo admin no painel do Hub como variável de ambiente do app.
+
+### Helper `claude.js`
+
+O arquivo `claude.js` na raiz fornece um client pré-configurado:
+
+```js
+const claude = require('./claude');
+```
+
+### Enviar uma mensagem simples
+
+```js
+const resposta = await claude.message('Explique o que é machine learning em 2 frases');
+console.log(resposta); // texto da resposta
+```
+
+### Enviar com system prompt
+
+```js
+const resposta = await claude.message('Analise este contrato...', {
+  system: 'Você é um assistente jurídico especializado em contratos.',
+  max_tokens: 2048,
+});
+```
+
+### Conversação (chat)
+
+```js
+const resposta = await claude.chat([
+  { role: 'user', content: 'Olá, quem é você?' },
+  { role: 'assistant', content: 'Sou o Claude, um assistente de IA.' },
+  { role: 'user', content: 'Me ajude a escrever um email profissional.' },
+], {
+  system: 'Responda sempre em português formal.',
+});
+```
+
+### Uso em rotas Express
+
+```js
+const claude = require('./claude');
+
+app.post('/api/ask', express.json(), async (req, res) => {
+  try {
+    const resposta = await claude.message(req.body.pergunta);
+    res.json({ resposta });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+```
+
+### Client avançado (SDK completo)
+
+```js
+const claude = require('./claude');
+const client = claude.getClient();
+
+const result = await client.messages.create({
+  model: 'claude-sonnet-4-20250514',
+  max_tokens: 4096,
+  messages: [
+    { role: 'user', content: [{ type: 'text', text: 'Descreva esta imagem...' }] }
+  ]
+});
+```
+
+### Regras importantes
+1. **Nunca commite a API key** — ela deve estar apenas na variável de ambiente
+2. **Cada app tem seu workspace** — o consumo é rastreado separadamente
+3. **Não é necessário instalar `@anthropic-ai/sdk`** — já está nas dependências
+4. **Use `claude.message()` para casos simples** — evite complexidade desnecessária
+5. **Monitore o consumo** no painel Claude AI do Hub
 
 ## Comandos
 ```bash

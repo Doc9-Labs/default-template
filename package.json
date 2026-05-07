@@ -8,6 +8,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
     "dotenv": "^16.4.0",
     "express": "^4.21.0",
     "pg": "^8.13.0"
